@@ -11,8 +11,8 @@ public class Main {
     private static int N;
     private static int[][] map;
     private static int[][] dijk;
-    private static int[] dx = { 0, 0, -1, 1 };
-    private static int[] dy = { -1, 1, 0, 0 };
+    private static int[] dx = { 1, 0, -1, 0 };
+	private static int[] dy = { 0, 1, 0, -1 };
     private static Queue<Node> arari;
     private static StringBuilder sb = new StringBuilder();
 
