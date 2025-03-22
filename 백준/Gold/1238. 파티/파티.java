@@ -1,79 +1,75 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
-
+import java.io.*;
+import java.util.*;
+// GPT 코드
 public class Main {
-    static int N, M, desti;
-
+    static int N, M, dest;
+    static ArrayList<Edge>[] graph, reverseGraph;
+    
     static class Edge implements Comparable<Edge> {
-        int e, w;
-
-        public Edge(int e, int w) {
-            this.e = e;
-            this.w = w;
+        int to, cost;
+        public Edge(int to, int cost) {
+            this.to = to;
+            this.cost = cost;
         }
-
-        @Override
-        public int compareTo(Edge o) {
-            return Integer.compare(w, o.w);
+        public int compareTo(Edge other) {
+            return Integer.compare(this.cost, other.cost);
         }
     }
-
-    static ArrayList<Edge>[] list;
-    static int[][] dp;
-    static int result;
-
+    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        desti = Integer.parseInt(st.nextToken());
-
-        list = new ArrayList[N + 1];
-        for (int i = 0; i < N + 1; i++) {
-            list[i] = new ArrayList<>();
+        dest = Integer.parseInt(st.nextToken());
+        
+        graph = new ArrayList[N + 1];
+        reverseGraph = new ArrayList[N + 1];
+        for (int i = 1; i <= N; i++) {
+            graph[i] = new ArrayList<>();
+            reverseGraph[i] = new ArrayList<>();
         }
+        
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            int s = Integer.parseInt(st.nextToken());
-            int e = Integer.parseInt(st.nextToken());
-            int w = Integer.parseInt(st.nextToken());
-            list[s].add(new Edge(e, w));
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
+            graph[from].add(new Edge(to, cost));
+            reverseGraph[to].add(new Edge(from, cost)); 
         }
-
-        dp = new int[N + 1][N + 1];
-        for (int i = 0; i < N + 1; i++) {
-            Arrays.fill(dp[i], Integer.MAX_VALUE);
+        
+        int[] distanceFrom = dijkstra(graph, dest);
+        int[] distanceTo = dijkstra(reverseGraph, dest);
+        
+        int result = 0;
+        for (int i = 1; i <= N; i++) {
+            result = Math.max(result, distanceFrom[i] + distanceTo[i]);
         }
-
-        for (int i = 1; i < N + 1; i++) {
-            PriorityQueue<Edge> pq = new PriorityQueue<>();
-            dp[i][i] = 0;
-            pq.add(new Edge(i, 0));
-            while (!pq.isEmpty()) {
-                Edge cur = pq.poll();
-                for (Edge next : list[cur.e]) {
-                    int newCost = dp[i][cur.e] + next.w;
-                    if (dp[i][next.e] > newCost) {
-                        dp[i][next.e] = newCost;
-                        pq.add(new Edge(next.e, newCost));
-                    }
+        System.out.println(result);
+    }
+    
+    static int[] dijkstra(ArrayList<Edge>[] g, int start) {
+        int[] dist = new int[N + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        dist[start] = 0;
+        pq.add(new Edge(start, 0));
+        
+        while (!pq.isEmpty()) {
+            Edge current = pq.poll();
+            int cur = current.to;
+            int cost = current.cost;
+            if (dist[cur] < cost) continue;
+            
+            for (Edge next : g[cur]) {
+                int newCost = cost + next.cost;
+                if (dist[next.to] > newCost) {
+                    dist[next.to] = newCost;
+                    pq.add(new Edge(next.to, newCost));
                 }
             }
         }
-
-        for (int i = 1; i < N + 1; i++) {
-            result = Math.max(result, dp[i][desti] + dp[desti][i]);
-        }
-        // for (int i = 0; i < N + 1; i++) { // 디버깅
-        // System.out.println(Arrays.toString(dp[i]));
-        // }
-        System.out.println(result);
-
+        return dist;
     }
 }
