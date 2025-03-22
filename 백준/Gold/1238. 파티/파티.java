@@ -57,9 +57,6 @@ public class Main {
             pq.add(new Edge(i, 0));
             while (!pq.isEmpty()) {
                 Edge cur = pq.poll();
-                if (dp[i][cur.e] < cur.w) {
-                    continue;
-                }
                 for (Edge next : list[cur.e]) {
                     int newCost = dp[i][cur.e] + next.w;
                     if (dp[i][next.e] > newCost) {
