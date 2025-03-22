@@ -1,37 +1,52 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Scanner;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
+    static int N;
+
+    static class meeting implements Comparable<meeting> {
+        int s, e;
+
+        public meeting(int s, int e) {
+            this.s = s;
+            this.e = e;
+        }
+
+        @Override
+        public int compareTo(meeting o) {
+            if (e != o.e) {
+                return Integer.compare(e, o.e);
+            }
+            return Integer.compare(s, o.s);
+        }
+
+    }
+
+    static PriorityQueue<meeting> pq = new PriorityQueue<>();
+    static int result;
+
     public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        int[][] arr = new int[n][2];
-        for (int i = 0; i < n; i++) {
-            arr[i][0] = sc.nextInt();
-            arr[i][1] = sc.nextInt();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(st.nextToken());
+            int e = Integer.parseInt(st.nextToken());
+            pq.add(new meeting(s, e));
         }
-        Arrays.sort(arr, new Comparator<int[]>() {
-            @Override
-            public int compare(int[] o1, int[] o2) {
-                return o1[1] != o2[1] ? o1[1] - o2[1] : o1[0] - o2[0];
-            }
-        });
-        // 문제풀이
-        int count = 0;
-        int end = 0;
-        for (int i = 0; i < n; i++) {
-            if (end <= arr[i][1] && end <= arr[i][0]) {
-                end = arr[i][1];
-                count++;
+
+        int last = 0;
+        while (!pq.isEmpty()) {
+            meeting cur = pq.poll();
+            if (last <= cur.s) {
+                last = cur.e;
+                result++;
             }
         }
-        System.out.println(count);
+        System.out.println(result);
     }
 }
