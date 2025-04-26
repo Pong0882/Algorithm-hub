@@ -1,32 +1,32 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
-
         char[] c = br.readLine().toCharArray();
-        ArrayDeque<Integer> dq = new ArrayDeque<>();
 
-        boolean[] flag = new boolean[2];
-        flag[1] = true;
-        int one = 0;
+        int[] cnt = new int[2];
         for (char ch : c) {
-            int n = ch - '0';
-            flag[n] = !flag[n];
-            if (flag[n]) {
-                if (n == 1) {
-                    one++;
-                } else {
-                    sb.append(n);
+            cnt[ch - 48]++;
+        }
+        // System.out.println(cnt[0] + " " + cnt[1]);
+
+        cnt[0] /= 2;
+        int maxOne = cnt[1] / 2;
+        StringBuilder sb = new StringBuilder();
+        for (char ch : c) {
+            int num = ch - 48;
+            if (num == 0) {
+                if (cnt[0]-- > 0) {
+                    sb.append(num);
+                }
+            } else {
+                if (cnt[1]-- <= maxOne) {
+                    sb.append(num);
                 }
             }
-        }
-        for (int i = 0; i < one; i++) {
-            sb.append(1);
         }
         System.out.println(sb);
     }
