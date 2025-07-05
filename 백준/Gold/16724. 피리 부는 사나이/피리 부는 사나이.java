@@ -1,18 +1,18 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.StringTokenizer;
 
 public class Main {
     static int N, M;
+    static int[] parent;
 
-    static int[][] map;
-    static int[][] paper;
-    static int result;
-
+    // 방향: U R D L ➜ dr/dc
     static int[] dr = { -1, 0, 1, 0 };
     static int[] dc = { 0, 1, 0, -1 };
+    static char[] dir = { 'U', 'R', 'D', 'L' };
+
+    static char[][] map;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -21,63 +21,62 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
 
-        map = new int[N][M];
-        paper = new int[N][M];
+        map = new char[N][M];
+        parent = new int[N * M];
 
         for (int i = 0; i < N; i++) {
-            char[] tmp = br.readLine().toCharArray();
+            map[i] = br.readLine().toCharArray();
+        }
 
-            for (int j = 0; j < M; j++) {
-                switch (tmp[j]) {
-                    case 'U':
-                        map[i][j] = 0;
-                        break;
-                    case 'R':
-                        map[i][j] = 1;
-                        break;
-                    case 'D':
-                        map[i][j] = 2;
-                        break;
-                    case 'L':
-                        map[i][j] = 3;
-                        break;
-                }
+        // 유니온 파인드 초기화
+        for (int i = 0; i < N * M; i++) {
+            parent[i] = i;
+        }
+
+        // 각 칸에서 방향대로 union
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < M; c++) {
+                int dirIdx = getDirIdx(map[r][c]);
+                int nr = r + dr[dirIdx];
+                int nc = c + dc[dirIdx];
+
+                int cur = r * M + c;
+                int next = nr * M + nc;
+
+                union(cur, next);
             }
         }
 
-        int cnt = 0;
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (paper[i][j] == 0) {
-                    DFS(i, j, ++cnt);
-                }
-            }
+        // 최종 싸이클 개수 세기
+        int result = 0;
+        for (int i = 0; i < N * M; i++) {
+            if (parent[i] == i) result++;
         }
+
         System.out.println(result);
     }
 
-    private static void DFS(int i, int j, int cnt) {
-        ArrayDeque<Integer[]> que = new ArrayDeque<>();
+    // 방향 문자 → 인덱스
+    static int getDirIdx(char d) {
+        for (int i = 0; i < 4; i++) {
+            if (dir[i] == d) return i;
+        }
+        return -1; // 안올 상황
+    }
 
-        que.add(new Integer[] { i, j });
-        paper[i][j] = cnt;
+    static int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]); // 경로 압축
+        }
+        return parent[x];
+    }
 
-        while (!que.isEmpty()) {
-            Integer[] tmp = que.poll();
-            int r = tmp[0];
-            int c = tmp[1];
+    static void union(int a, int b) {
+        int pa = find(a);
+        int pb = find(b);
 
-            int nr = r + dr[map[r][c]];
-            int nc = c + dc[map[r][c]];
-
-            if (paper[nr][nc] == cnt) {
-                result++;
-            }
-            if (paper[nr][nc] == 0) {
-                que.add(new Integer[] { nr, nc });
-                paper[nr][nc] = cnt;
-            }
+        if (pa != pb) {
+            parent[pa] = pb;
         }
     }
 }
